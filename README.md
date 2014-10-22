@@ -1,2 +1,3 @@
-suffixtree-ukkonen-algorithm
+Suffix Tree - Ukkonen algorithm
 ============================
+This project is still in development.
