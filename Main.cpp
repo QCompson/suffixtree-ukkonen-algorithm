@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <fstream>
+#include <string>
 using namespace std;
 
 class Node {
@@ -24,10 +25,26 @@ public:
     SuffixTree(string _inputString){
         this->inputString = _inputString;
     }
+
+
+    void CreateSuffixTree()
+	{
+		int inputStringLen=inputString.length();
+		for(int i=0;i<inputStringLen; i++)
+		{
+			AddCharacter(inputString[i]);
+		}
+	}
+
+
+    //Handling a new character while following all the rules
+	void AddCharacter(char c){
+
+	}
 };
 
 
-
+//A link between two nodes represented by [index_of_first_char, index_of_last_char]
 class NormalEdge {
 public:
     int startCharacterIndex;
@@ -46,6 +63,7 @@ public:
 	}
 };
 
+//The suffix link
 class SuffixEdge {
 public:
     Node *startNode;
@@ -59,7 +77,17 @@ public:
 		this->endNode=_endNode;
 	}
 
+
 };
+
+void WriteToFile(string str, char* fileName)
+{
+	ofstream outFile;
+    outFile.open(fileName);
+    outFile<<str;
+    outFile.close();
+}
+
 
 int main (int argc, char* argv[]) {
     return 0;
