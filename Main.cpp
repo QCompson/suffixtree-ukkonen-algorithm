@@ -1,16 +1,21 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 using namespace std;
 
+class NormalEdge;
+class SuffixEdge;
 class Node {
 public:
     int number;
-
+	SuffixEdge *suffixEdge;
+	vector<NormalEdge> edges;
     Node() {}
 
     Node(int _number){
         this->number = _number;
+		this->suffixEdge=NULL;
     }
 };
 
@@ -43,7 +48,19 @@ public:
 	}
 };
 
-
+class Triple{
+public:
+	Node *activeNode;
+	NormalEdge *activeEdge;
+	int length;
+	
+	Triple() {}
+	Triple(Node * _activeNode, int _length){
+		this->activeNode=_activeNode;
+		this->length=_length;
+		this->activeEdge=NULL;
+	}
+};
 //A link between two nodes represented by [index_of_first_char, index_of_last_char]
 class NormalEdge {
 public:
