@@ -25,6 +25,10 @@ private:
 	int nodeNumber;
 	int currentPosition;
 	string inputString;
+	Triple *activePoint;
+	int remainder;
+	stringstream graphvizOutput;   //Output is in dot notation (gaphviz)
+	int startCharacterIndexForInsertInString;
 
 public:
     SuffixTree(string _inputString){
@@ -46,6 +50,16 @@ public:
 	void AddCharacter(char c){
 
 	}
+
+    //Creating a new edge in the tree
+	void AddNewEdge(Node *startNode, int startIndex, int endIndex)
+	{
+			Node *leaf=new Node(nodeNumber);
+			nodeNumber++;
+			NormalEdge *edge=new NormalEdge(startIndex, endIndex, startNode, leaf);
+			startNode->edges.push_back(*edge);
+
+	}
 };
 
 class Triple{
@@ -53,7 +67,7 @@ public:
 	Node *activeNode;
 	NormalEdge *activeEdge;
 	int length;
-	
+
 	Triple() {}
 	Triple(Node * _activeNode, int _length){
 		this->activeNode=_activeNode;
@@ -103,6 +117,21 @@ void WriteToFile(string str, char* fileName)
     outFile.open(fileName);
     outFile<<str;
     outFile.close();
+}
+
+string ReadFromFile(const char *filename)
+{
+  ifstream inFile(filename);
+  if (inFile)
+  {
+    std::string input;
+    inFile.seekg(0, std::ios::end);
+    input.resize(inFile.tellg());
+    inFile.seekg(0, std::ios::beg);
+    inFile.read(&input[0], input.size());
+    inFile.close();
+    return(input);
+  }
 }
 
 
