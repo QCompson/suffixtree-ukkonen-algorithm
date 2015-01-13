@@ -146,10 +146,59 @@ public:
 				this->startCharacterIndexForInsertInString=this->currentPosition;
 			}
 			if(NeedToInsertNewEdge(false)){
-				//TODO
+				AddNewEdge(activePoint->activeNode, startCharacterIndexForInsertInString, startCharacterIndexForInsertInString);
+				if(previousInsertedNode!=NULL)
+				{
+					SuffixEdge *suffixEdge=new SuffixEdge(previousInsertedNode, activePoint->activeNode);
+					previousInsertedNode->suffixEdge=suffixEdge;
+				}
+				previousInsertedNode=activePoint->activeNode;
 			}
 			else{
-				//TODO
+				activePoint->activeEdge=ChooseActiveEdge();
+				int edgeLen=activePoint->activeEdge->endCharacterIndex-activePoint->activeEdge->startCharacterIndex+1;
+				if(activePoint->length>=edgeLen)
+				{
+					startCharacterIndexForInsertInString+=edgeLen;
+					activePoint->length-=edgeLen;
+					activePoint->activeNode=activePoint->activeEdge->endNode;
+					activePoint->activeEdge=ChooseActiveEdge();
+					continue;
+				}
+				if(!NeedToInsertNewEdge(true))
+				{
+					activePoint->length++;
+					if(previousInsertedNode!=NULL)
+					{
+						SuffixEdge *suffixEdge=new SuffixEdge(previousInsertedNode, activePoint->activeNode);
+						previousInsertedNode->suffixEdge=suffixEdge;
+					}
+					previousInsertedNode=activePoint->activeNode;
+					break;
+				}
+
+			    int splitIndex=activePoint->length+activePoint->activeEdge->startCharacterIndex;
+				AddNewInternalEdge(splitIndex, currentPosition);
+				if(previousInsertedNode!=NULL)
+				{
+					SuffixEdge *suffixEdge=new SuffixEdge(previousInsertedNode, activePoint->activeEdge->endNode);
+					previousInsertedNode->suffixEdge=suffixEdge;
+				}
+				previousInsertedNode=activePoint->activeEdge->endNode;
+			}
+			remainder--;
+			if(activePoint->activeNode->number==root->number && activePoint->length>0){
+				activePoint->length--;
+				startCharacterIndexForInsertInString++;
+				activePoint->activeEdge=ChooseActiveEdge();
+			}
+			else{
+				if(activePoint->activeNode->suffixEdge==NULL){
+					activePoint->activeNode=root;
+				}
+				else{
+					activePoint->activeNode=activePoint->activeNode->suffixEdge->endNode;
+				}
 			}
 		}
 
@@ -161,6 +210,11 @@ public:
 			nodeNumber++;
 			NormalEdge *edge=new NormalEdge(startIndex, endIndex, startNode, leaf);
 			startNode->edges.push_back(*edge);
+	}
+
+	void AddNewInternalEdge(int startIndex, int endIndex)
+	{
+		//TODO
 	}
 
 	void AddSuffixToExistingEdges(Node *_startNode){
@@ -203,11 +257,21 @@ public:
 		}
 		return true;
 	}
+
+	NormalEdge* ChooseActiveEdge(){
+		int edgeSize=activePoint->activeNode->edges.size();
+		for(int i=0;i<edgeSize;i++){
+			NormalEdge *tmpEdge=&activePoint->activeNode->edges.at(i);
+			string s1=inputString.substr(tmpEdge->startCharacterIndex, 1);
+			string s2=inputString.substr(startCharacterIndexForInsertInString, 1);
+
+			if(s1.compare(s2)==0){//equals
+				return tmpEdge;
+			}
+		}
+	return NULL;
+	}
 };
-
-
-//A link between two nodes represented by [index_of_first_char, index_of_last_char]
-
 
 void WriteToFile(string str, char* fileName)
 {
