@@ -107,10 +107,22 @@ private:
 	int remainder;
 	stringstream graphvizOutput;   //Output is in dot notation (gaphviz)
 	int startCharacterIndexForInsertInString;
+	Node *previousInsertedNode;
 
 public:
     SuffixTree(string _inputString){
         this->inputString = _inputString;
+		this->nodeNumber=1;
+		Node *rootNode=new Node(this->nodeNumber);
+		this->root=rootNode;
+		this->nodeNumber++;
+		this->currentPosition=-1;
+		this->remainder=0;
+		this->startCharacterIndexForInsertInString=0;
+		this->graphvizOutput.clear();
+		Triple *triple=new Triple(root, 0);
+		this->activePoint=triple;
+		this->previousInsertedNode=NULL;
     }
 
 
@@ -124,7 +136,23 @@ public:
 
     //Handling a new character while following all the rules
 	void AddCharacter(char c){
-		//TODO
+		this->previousInsertedNode=NULL;
+		this->currentPosition++;
+		this->remainder++;
+		AddSuffixToExistingEdges(root);
+
+		while(this->remainder>0){
+			if(this->activePoint->length==0){
+				this->startCharacterIndexForInsertInString=this->currentPosition;
+			}
+			if(NeedToInsertNewEdge(false)){
+				//TODO
+			}
+			else{
+				//TODO
+			}
+		}
+
 	}
 
     //Creating a new edge in the tree
@@ -133,6 +161,47 @@ public:
 			nodeNumber++;
 			NormalEdge *edge=new NormalEdge(startIndex, endIndex, startNode, leaf);
 			startNode->edges.push_back(*edge);
+	}
+
+	void AddSuffixToExistingEdges(Node *_startNode){
+		int edgesSize=_startNode->edges.size();
+		for(int i=0;i<edgesSize;i++){
+			NormalEdge *tmpEdge=&_startNode->edges.at(i);
+			if(tmpEdge->endNode->edges.size()==0){
+				tmpEdge->endCharacterIndex++;
+			}
+			else{
+				AddSuffixToExistingEdges(tmpEdge->endNode);
+			}
+		}
+	}
+
+	bool NeedToInsertNewEdge(bool useActiveLen){
+		int len=1;
+		if(useActiveLen){
+			len+=activePoint->length;
+		}
+		if(activePoint->activeEdge==NULL){
+			int edgesSize=activePoint->activeNode->edges.size();
+			for(int i=0;i<edgesSize;i++){
+				NormalEdge *tmp=&activePoint->activeNode->edges.at(i);
+				string s1=inputString.substr(tmp->startCharacterIndex, len);
+				string s2=inputString.substr(startCharacterIndexForInsertInString, len);
+
+				if(s1.compare(s2)==0){//equals
+					return false;
+				}
+			}
+			return true;
+		}
+		else{
+			string s1=inputString.substr(activePoint->activeEdge->startCharacterIndex, len);
+			string s2=inputString.substr(startCharacterIndexForInsertInString, len);
+			if(s1.compare(s2)==0){//equals
+				return false;
+			}
+		}
+		return true;
 	}
 };
 
