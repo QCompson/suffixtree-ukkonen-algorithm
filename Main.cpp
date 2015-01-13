@@ -4,64 +4,7 @@
 #include <vector>
 using namespace std;
 
-class NormalEdge;
-class SuffixEdge;
-class Node {
-public:
-    int number;
-	SuffixEdge *suffixEdge;
-	vector<NormalEdge> edges;
-    Node() {}
-
-    Node(int _number){
-        this->number = _number;
-		this->suffixEdge=NULL;
-    }
-};
-
-class SuffixTree {
-private:
-    Node *root;
-	int nodeNumber;
-	int currentPosition;
-	string inputString;
-
-public:
-    SuffixTree(string _inputString){
-        this->inputString = _inputString;
-    }
-
-
-    void CreateSuffixTree()
-	{
-		int inputStringLen=inputString.length();
-		for(int i=0;i<inputStringLen; i++)
-		{
-			AddCharacter(inputString[i]);
-		}
-	}
-
-
-    //Handling a new character while following all the rules
-	void AddCharacter(char c){
-
-	}
-};
-
-class Triple{
-public:
-	Node *activeNode;
-	NormalEdge *activeEdge;
-	int length;
-	
-	Triple() {}
-	Triple(Node * _activeNode, int _length){
-		this->activeNode=_activeNode;
-		this->length=_length;
-		this->activeEdge=NULL;
-	}
-};
-//A link between two nodes represented by [index_of_first_char, index_of_last_char]
+class Node;
 class NormalEdge {
 public:
     int startCharacterIndex;
@@ -96,6 +39,92 @@ public:
 
 
 };
+
+class Node {
+public:
+    int number;
+	SuffixEdge *suffixEdge;
+	vector<NormalEdge> edges;
+    Node() {}
+
+    Node(int _number){
+        this->number = _number;
+		this->suffixEdge=NULL;
+    }
+
+	void RemoveEdge(NormalEdge *e){
+		int index=-1;
+		int fs=NULL;
+		if(e->startNode!=NULL){
+			fs=e->startNode->number;
+		}
+		int fe=NULL;
+		if(e->endNode!=NULL){
+			fe=e->endNode->number;
+		}
+		for(vector<NormalEdge>::iterator it = edges.begin(); it != edges.end(); ++it) {
+			NormalEdge *edgeTmp=&(*it);
+			int ss=NULL;
+			if(edgeTmp->startNode!=NULL){
+				ss=edgeTmp->startNode->number;
+			}
+			int se=NULL;
+			if(edgeTmp->endNode!=NULL){
+				se=edgeTmp->endNode->number;
+			}
+			if(fs==ss && fe==se){
+				edges.erase(it);
+				break;
+			}
+		}
+	}
+};
+
+class SuffixTree {
+private:
+    Node *root;
+	int nodeNumber;
+	int currentPosition;
+	string inputString;
+
+public:
+    SuffixTree(string _inputString){
+        this->inputString = _inputString;
+    }
+
+
+    void CreateSuffixTree()
+	{
+		int inputStringLen=inputString.length();
+		for(int i=0;i<inputStringLen; i++)
+		{
+			AddCharacter(inputString[i]);
+		}
+	}
+
+
+    //Handling a new character while following all the rules
+	void AddCharacter(char c){
+		//TODO
+	}
+};
+
+class Triple{
+public:
+	Node *activeNode;
+	NormalEdge *activeEdge;
+	int length;
+	
+	Triple() {}
+	
+	Triple(Node * _activeNode, int _length){
+		this->activeNode=_activeNode;
+		this->length=_length;
+		this->activeEdge=NULL;
+	}
+};
+//A link between two nodes represented by [index_of_first_char, index_of_last_char]
+
 
 void WriteToFile(string str, char* fileName)
 {
