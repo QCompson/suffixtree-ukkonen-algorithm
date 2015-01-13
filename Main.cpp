@@ -2,7 +2,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 using namespace std;
+
 
 class Node;
 class NormalEdge {
@@ -80,6 +82,21 @@ public:
 	}
 };
 
+class Triple{
+public:
+	Node *activeNode;
+	NormalEdge *activeEdge;
+	int length;
+
+	Triple() {}
+	
+	Triple(Node * _activeNode, int _length){
+		this->activeNode=_activeNode;
+		this->length=_length;
+		this->activeEdge=NULL;
+	}
+};
+
 class SuffixTree {
 private:
     Node *root;
@@ -97,11 +114,9 @@ public:
     }
 
 
-    void CreateSuffixTree()
-	{
+    void CreateSuffixTree(){
 		int inputStringLen=inputString.length();
-		for(int i=0;i<inputStringLen; i++)
-		{
+		for(int i=0;i<inputStringLen; i++){
 			AddCharacter(inputString[i]);
 		}
 	}
@@ -113,30 +128,15 @@ public:
 	}
 
     //Creating a new edge in the tree
-	void AddNewEdge(Node *startNode, int startIndex, int endIndex)
-	{
+	void AddNewEdge(Node *startNode, int startIndex, int endIndex){
 			Node *leaf=new Node(nodeNumber);
 			nodeNumber++;
 			NormalEdge *edge=new NormalEdge(startIndex, endIndex, startNode, leaf);
 			startNode->edges.push_back(*edge);
-
 	}
 };
 
-class Triple{
-public:
-	Node *activeNode;
-	NormalEdge *activeEdge;
-	int length;
 
-	Triple() {}
-	
-	Triple(Node * _activeNode, int _length){
-		this->activeNode=_activeNode;
-		this->length=_length;
-		this->activeEdge=NULL;
-	}
-};
 //A link between two nodes represented by [index_of_first_char, index_of_last_char]
 
 
