@@ -214,7 +214,25 @@ public:
 
 	void AddNewInternalEdge(int startIndex, int endIndex)
 	{
-		//TODO
+		Node *splittedEdgeNode =new Node(nodeNumber);
+		nodeNumber++;
+
+		NormalEdge *splittedEdge=new NormalEdge(activePoint->activeEdge->startCharacterIndex, startIndex-1, activePoint->activeNode, splittedEdgeNode);
+		activePoint->activeNode->edges.push_back(*splittedEdge);
+		activePoint->activeEdge=ChooseActiveEdge();
+
+		Node *leafEdgeNode=new Node(nodeNumber);
+		nodeNumber++;
+		NormalEdge *leafEdge=new NormalEdge(endIndex, endIndex, splittedEdgeNode, leafEdgeNode);
+		splittedEdgeNode->edges.push_back(*leafEdge);
+
+		activePoint->activeEdge->startCharacterIndex+=activePoint->length;
+
+		activePoint->activeEdge->startNode=splittedEdgeNode;
+		splittedEdgeNode->edges.push_back(*(activePoint->activeEdge));
+
+		activePoint->activeNode->RemoveEdge(activePoint->activeEdge);
+		activePoint->activeEdge=splittedEdge;
 	}
 
 	void AddSuffixToExistingEdges(Node *_startNode){
