@@ -60,21 +60,21 @@ public:
 
 	void RemoveEdge(NormalEdge *e){
 		int index=-1;
-		int fs=NULL;
+		int fs=0;
 		if(e->startNode!=NULL){
 			fs=e->startNode->number;
 		}
-		int fe=NULL;
+		int fe=0;
 		if(e->endNode!=NULL){
 			fe=e->endNode->number;
 		}
 		for(vector<NormalEdge>::iterator it = edges.begin(); it != edges.end(); ++it) {
 			NormalEdge *edgeTmp=&(*it);
-			int ss=NULL;
+			int ss=0;
 			if(edgeTmp->startNode!=NULL){
 				ss=edgeTmp->startNode->number;
 			}
-			int se=NULL;
+			int se=0;
 			if(edgeTmp->endNode!=NULL){
 				se=edgeTmp->endNode->number;
 			}
