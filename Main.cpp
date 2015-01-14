@@ -240,23 +240,43 @@ public:
 			len+=activePoint->length;
 		}
 		if(activePoint->activeEdge==NULL){
+
 			int edgesSize=activePoint->activeNode->edges.size();
 			for(int i=0;i<edgesSize;i++){
-				NormalEdge *tmp=&activePoint->activeNode->edges.at(i);
-				string s1=inputString.substr(tmp->startCharacterIndex, len);
-				string s2=inputString.substr(startCharacterIndexForInsertInString, len);
 
-				if(s1.compare(s2)==0){//equals
-					return false;
+				if(len==1){
+					NormalEdge *tmp=&activePoint->activeNode->edges.at(i);
+					char s1=inputString.at(tmp->startCharacterIndex);
+					char s2=inputString.at(startCharacterIndexForInsertInString);
+					if(s1==s2){//equals
+						return false;
+					}
+				}
+				else{
+					NormalEdge *tmp=&activePoint->activeNode->edges.at(i);
+					string s1=inputString.substr(tmp->startCharacterIndex, len);
+					string s2=inputString.substr(startCharacterIndexForInsertInString, len);
+					if(s1.compare(s2)==0){//equals
+						return false;
+					}
 				}
 			}
 			return true;
 		}
-		else{
-			string s1=inputString.substr(activePoint->activeEdge->startCharacterIndex, len);
-			string s2=inputString.substr(startCharacterIndexForInsertInString, len);
-			if(s1.compare(s2)==0){//equals
-				return false;
+		else{	
+			if(len==1){
+					char s1=inputString.at(activePoint->activeEdge->startCharacterIndex);
+					char s2=inputString.at(startCharacterIndexForInsertInString);
+					if(s1==s2){//equals
+						return false;
+					}
+			}
+			else{
+				string s1=inputString.substr(activePoint->activeEdge->startCharacterIndex, len);
+				string s2=inputString.substr(startCharacterIndexForInsertInString, len);
+				if(s1.compare(s2)==0){//equals
+					return false;
+				}
 			}
 		}
 		return true;
