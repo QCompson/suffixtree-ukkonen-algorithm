@@ -5,7 +5,7 @@
 #include <sstream>
 using namespace std;
 
-
+int currentPosition=-1;
 class Node;
 
 //An edge between two nodes is described by the index of the first character and the index of the last character
@@ -26,6 +26,8 @@ public:
 		this->startNode=_startNode;
 		this->endNode=_endNode;
 	}
+
+	int returnEndCharacterIndex();
 };
 
 
@@ -34,10 +36,12 @@ public:
     int number;
 	Node *suffixEdge;
 	vector<NormalEdge> edges;
+	bool isLeaf;
     Node() {}
 
-    Node(int _number){
+    Node(int _number, bool _isLeaf){
         this->number = _number;
+		this->isLeaf=_isLeaf;
 		this->suffixEdge=NULL;
     }
 
@@ -69,6 +73,17 @@ public:
 	}
 };
 
+int NormalEdge::returnEndCharacterIndex() {
+		if(endNode->isLeaf==1)
+		{
+			return currentPosition;
+		}
+		else
+		{
+			return endCharacterIndex;
+		}
+	}
+
 //The algorithm is based on the triple: Active Node, Active Edge and Active Lenght which keeps a better track
 //of the current step and helps out with characters already inserted in the tree, as well as with suffix links
 class Triple{
@@ -91,7 +106,6 @@ class SuffixTree {
 private:
     Node *root;
 	int nodeNumber;
-	int currentPosition;
 	string inputString;
 	Triple *activePoint;
 	int remainder;
@@ -103,10 +117,8 @@ public:
     SuffixTree(string _inputString){
         this->inputString = _inputString;
 		this->nodeNumber=1;
-		Node *rootNode=new Node(this->nodeNumber);
-		this->root=rootNode;
+		this->root=new Node(this->nodeNumber, false);
 		this->nodeNumber++;
-		this->currentPosition=-1;
 		this->remainder=0;
 		this->startCharacterIndexForInsertInString=0;
 		this->graphvizOutput.clear();
@@ -127,14 +139,13 @@ public:
     //Handling a new character while following all the rules
 	void AddCharacter(char c){
 		this->previousInsertedNode=NULL;
-		this->currentPosition++;
+		currentPosition++;
 		this->remainder++;
-		AddSuffixToExistingEdges(root);
 
 		while(this->remainder>0){
 
 			if(this->activePoint->length==0){
-				this->startCharacterIndexForInsertInString=this->currentPosition;
+				this->startCharacterIndexForInsertInString=currentPosition;
 			}
 
 			if(NeedToInsertNewEdge(false)){
@@ -192,22 +203,21 @@ public:
 
     //Creating a new edge in the tree
 	void AddNewEdge(Node *startNode, int startIndex, int endIndex){
-			Node *leaf=new Node(nodeNumber);
+			Node *leaf=new Node(nodeNumber, true);
 			nodeNumber++;
 			NormalEdge *edge=new NormalEdge(startIndex, endIndex, startNode, leaf);
 			startNode->edges.push_back(*edge);
 	}
 
-	void AddNewInternalEdge(int startIndex, int endIndex)
-	{
-		Node *splittedEdgeNode =new Node(nodeNumber);
+	void AddNewInternalEdge(int startIndex, int endIndex){
+		Node *splittedEdgeNode =new Node(nodeNumber, false);
 		nodeNumber++;
 
 		NormalEdge *splittedEdge=new NormalEdge(activePoint->activeEdge->startCharacterIndex, startIndex-1, activePoint->activeNode, splittedEdgeNode);
 		activePoint->activeNode->edges.push_back(*splittedEdge);
 		activePoint->activeEdge=ChooseActiveEdge();
 
-		Node *leafEdgeNode=new Node(nodeNumber);
+		Node *leafEdgeNode=new Node(nodeNumber, true);
 		nodeNumber++;
 		NormalEdge *leafEdge=new NormalEdge(endIndex, endIndex, splittedEdgeNode, leafEdgeNode);
 		splittedEdgeNode->edges.push_back(*leafEdge);
@@ -219,19 +229,6 @@ public:
 
 		activePoint->activeNode->RemoveEdge(activePoint->activeEdge);
 		activePoint->activeEdge=splittedEdge;
-	}
-
-	void AddSuffixToExistingEdges(Node *_startNode){
-		int edgesSize=_startNode->edges.size();
-		for(int i=0;i<edgesSize;i++){
-			NormalEdge *tmpEdge=&_startNode->edges.at(i);
-			if(tmpEdge->endNode->edges.size()==0){
-				tmpEdge->endCharacterIndex++;
-			}
-			else{
-				AddSuffixToExistingEdges(tmpEdge->endNode);
-			}
-		}
 	}
 
 	bool NeedToInsertNewEdge(bool useActiveLen){
