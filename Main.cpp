@@ -74,12 +74,10 @@ public:
 };
 
 int NormalEdge::returnEndCharacterIndex() {
-		if(endNode->isLeaf==1)
-		{
+		if(endNode->isLeaf==1){
 			return currentPosition;
 		}
-		else
-		{
+		else{
 			return endCharacterIndex;
 		}
 	}
@@ -158,8 +156,8 @@ public:
 			else{
 				activePoint->activeEdge=ChooseActiveEdge();
 				int edgeLen=activePoint->activeEdge->endCharacterIndex-activePoint->activeEdge->startCharacterIndex+1;
-				if(activePoint->length>=edgeLen)
-				{
+				if(activePoint->length>=edgeLen){
+
 					startCharacterIndexForInsertInString+=edgeLen;
 					activePoint->length-=edgeLen;
 					activePoint->activeNode=activePoint->activeEdge->endNode;
@@ -167,8 +165,8 @@ public:
 					continue;
 				}
 				if(!NeedToInsertNewEdge(true)){
-					activePoint->length++;
 
+					activePoint->length++;
 					if(previousInsertedNode!=NULL){
 						previousInsertedNode->suffixEdge=activePoint->activeNode;
 					}
@@ -283,89 +281,73 @@ public:
 		int edgeSize=activePoint->activeNode->edges.size();
 		for(int i=0;i<edgeSize;i++){
 			NormalEdge *tmpEdge=&activePoint->activeNode->edges.at(i);
-			string s1=inputString.substr(tmpEdge->startCharacterIndex, 1);
-			string s2=inputString.substr(startCharacterIndexForInsertInString, 1);
-
-			if(s1.compare(s2)==0){//equals
+			char s1=inputString.at(tmpEdge->startCharacterIndex);
+			char s2=inputString.at(startCharacterIndexForInsertInString);
+			if(s1==s2)//equals
+			{
 				return tmpEdge;
 			}
 		}
-	return NULL;
+		return NULL;
 	}
 
 	//Printing the edges in a standard .dot notation
-	void PrintEdges(Node *n)
-	{
+	void PrintEdges(Node *n){
 		int edgesSize=n->edges.size();
-		for(int i=0;i<edgesSize;i++)
-		{
+		for(int i=0;i<edgesSize;i++){
 			NormalEdge *tmp=&n->edges.at(i);
 			graphvizOutput<<"\t node"<<n->number;
 			graphvizOutput<<" -> node"<<tmp->endNode->number;
 			graphvizOutput<<" [label=\"";
-			//graphvizOutput<<tmp->text;
+			graphvizOutput<<inputString.substr(tmp->startCharacterIndex, tmp->returnEndCharacterIndex()-tmp->startCharacterIndex+1);
 			graphvizOutput<<"\",weight=3] \n";
 			PrintEdges(tmp->endNode);
 		}
 	}
 
-	void PrintInternalNodes(Node *n)
-	{
+	void PrintInternalNodes(Node *n){
 		int edgesSize=n->edges.size();
-		if(n->number!=root->number && edgesSize>0)
-		{
+		if(n->number!=root->number && edgesSize>0){
 			graphvizOutput<<"\t node";
 			graphvizOutput<<n->number;
 			graphvizOutput<<" [label=\"\",style=filled,fillcolor=lightgrey,shape=circle,width=.07,height=.07] \n";
 		}
-		if(edgesSize>0)
-		{
-			for(int i=0;i<edgesSize;i++)
-			{
+		if(edgesSize>0){
+			for(int i=0;i<edgesSize;i++){
 				NormalEdge *e=&n->edges.at(i);
-				if(e->endNode!=NULL)
-				{
+				if(e->endNode!=NULL){
 					PrintInternalNodes(e->endNode);
 				}
 			}
 		}
 	}
 
-	void PrintLeaves(Node *n)
-	{
+	void PrintLeaves(Node *n){
 		int edgesSize=n->edges.size();
-		if(edgesSize==0)
-		{
-			cout<<n->number<<endl;
+		if(edgesSize==0){
 			graphvizOutput<<"\t node"<<n->number;
 			graphvizOutput<<" [label=\"\",shape=point] \n";
 		}
-		else
-		{
-			for(int i=0;i<edgesSize;i++)
-			{
+		else{
+			for(int i=0;i<edgesSize;i++){
 				NormalEdge *tmp=&n->edges.at(i);
-				if(tmp->endNode!=NULL)
-				{
+				if(tmp->endNode!=NULL){
 					PrintLeaves(tmp->endNode);
 				}
 			}
 		}
 	}
-	void PrintSuffixEdges(Node *n)
-	{
-		if(n->suffixEdge!=NULL)
-		{
+
+	void PrintSuffixEdges(Node *n){
+		if(n->suffixEdge!=NULL){
 			graphvizOutput<<"\t node" ;
 			graphvizOutput<<n->number<<" -> node";
 			graphvizOutput<<n->suffixEdge->number<<" [label=\"\",weight=1,style=dotted] \n";
 		}
 		int edgesSize=n->edges.size();
-		for(int i=0;i<edgesSize;i++)
-		{
+		for(int i=0;i<edgesSize;i++){
 			NormalEdge *e=&n->edges.at(i);
-			if(e->endNode!=NULL)
-			{
+			if(e->endNode!=NULL){
 			PrintSuffixEdges(e->endNode);
 			}
 		}
