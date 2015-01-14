@@ -7,6 +7,9 @@ using namespace std;
 
 
 class Node;
+
+//An edge between two nodes is described by the index of the first character and the index of the last character
+//and represents a substring of the initial input
 class NormalEdge {
 public:
     int startCharacterIndex;
@@ -25,7 +28,8 @@ public:
 	}
 };
 
-//The suffix link
+//The suffix link which is created between a node 'v' and node 's(v)' if the edge for 'v' is labeled xA, and
+// the edge for 's(v)' is labeled A.
 class SuffixEdge {
 public:
     Node *startNode;
@@ -82,6 +86,8 @@ public:
 	}
 };
 
+//The algorithm is based on the triple: Active Node, Active Edge and Active Lenght which keeps a better track
+//of the current step and helps out with characters already inserted in the tree, as well as with suffix links
 class Triple{
 public:
 	Node *activeNode;
@@ -89,7 +95,7 @@ public:
 	int length;
 
 	Triple() {}
-	
+
 	Triple(Node * _activeNode, int _length){
 		this->activeNode=_activeNode;
 		this->length=_length;
@@ -97,6 +103,7 @@ public:
 	}
 };
 
+//The Tree instance which iscreated from the initial input.
 class SuffixTree {
 private:
     Node *root;
@@ -289,7 +296,47 @@ public:
 		}
 	return NULL;
 	}
+
+	//Printing the edges in a standard .dot notation
+	void PrintEdges(Node *n)
+	{
+		int edgesSize=n->edges.size();
+		for(int i=0;i<edgesSize;i++)
+		{
+			NormalEdge *tmp=&n->edges.at(i);
+			graphvizOutput<<"\t node"<<n->number;
+			graphvizOutput<<" -> node"<<tmp->endNode->number;
+			graphvizOutput<<" [label=\"";
+			graphvizOutput<<tmp->text;
+			graphvizOutput<<"\",weight=3] \n";
+			PrintEdges(tmp->endNode);
+		}
+	}
+
+	//Printing the tree in a .dot format which is a standard for graphviz visualization
+	string PrintTree()
+	{
+		graphvizOutput.clear();
+        graphvizOutput<<"digraph { \n";
+        graphvizOutput<<"\t rankdir = LR; \n";
+        graphvizOutput<<"\t edge [arrowsize=0.5,fontsize=12] \n";
+        graphvizOutput<<"\t node1 [label=\"\",style=filled,fillcolor=lightgrey,shape=circle,width=.1,height=.1]; \n";
+        graphvizOutput<<"//------leaves------ \n";
+        PrintLeaves(root);
+        graphvizOutput<<"//------nodes------ \n";
+        PrintInternalNodes(root);
+        graphvizOutput<<"//------edges------ \n";
+        PrintEdges(root);
+        graphvizOutput<<"//------suffix links------ \n";
+	    PrintSuffixEdges(root);
+        graphvizOutput<<"} \n";
+
+        return graphvizOutput.str();
+	}
+
 };
+
+//Methods handling input/output
 
 void WriteToFile(string str, char* fileName)
 {
