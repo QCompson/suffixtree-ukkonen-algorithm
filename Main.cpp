@@ -11,6 +11,8 @@ using namespace std;
 
 int currentPosition=-1;
 class Node;
+//Class for modeling edges. Edge has start and end Node, and start and end index.
+//Indexes are used to determine which string from input is on that edge
 class NormalEdge
 {
 public:
@@ -27,10 +29,13 @@ public:
 	}
 	NormalEdge(){}
 
+	//Function returns index of last character that is on this edge.
 	int returnEndCharacterIndex();
 };
 
 
+//Class for modeling nodes. Node has collection of edges that go from him and suffix link to other node, 
+//number which is used when visualizing tree and bool which determines if node is leaf or not
 class Node
 {
 public:
@@ -46,7 +51,7 @@ public:
 	Node(){}
 
 
-
+	//Function remove given edge from node
 	void RemoveEdge(NormalEdge *e){
 		int index=-1;
 		int fs=0;
@@ -84,6 +89,7 @@ int NormalEdge::returnEndCharacterIndex() {
 		}
 	}
 
+//Class is modeling active point. Active point has active node, active edge and active length.
 class Triple
 {
 public:
@@ -99,6 +105,7 @@ public:
 	Triple(){}
 };
 
+//Class is modeling suffix tree. It has functions for creating and printing suffix tree.
 class SuffixTree
 {
 public:
@@ -117,6 +124,7 @@ public:
 		previousInsertedNode=NULL;
 	}
 
+	//Function takes each character from input string and call method for adding character to tree
 	void CreateSuffixTree(){
 		int inputStringLen=inputString.length();
 		for(int i=0;i<inputStringLen; i++){
@@ -124,6 +132,7 @@ public:
 		}
 	}
 
+	//Function returns whole tree as string
 	string PrintTree(){
 		graphvizIspis.clear();
         graphvizIspis<<"digraph { \n";
@@ -153,6 +162,7 @@ private:
     stringstream graphvizIspis;
 	Node *previousInsertedNode; //node previously inserted during same step
 
+	//Function has whole logic for adding character in suffix tree
 	void AddCharacter(char c){
 		previousInsertedNode=NULL;
 		currentPosition++;
@@ -215,6 +225,7 @@ private:
 		}
 	}
 
+	//Function creates and adds new leaf node to tree
 	void AddNewEdge(Node *startNode, int startIndex, int endIndex){
 			Node *leaf=new Node(nodeNumber, true);
 			nodeNumber++;
@@ -222,6 +233,7 @@ private:
 			startNode->edges.push_back(*edge);
 	}
 
+	//Function splits edge and creates two other ethes from it along with it's corresponding nodes and adds it to tree
 	void AddNewInternalEdge(int startIndex, int endIndex){
 		Node *splittedEdgeNode =new Node(nodeNumber, false);
 		nodeNumber++;
@@ -247,6 +259,7 @@ private:
 	}
 
 
+	//Function decides if there is need for inserting new edge into tree.
 	bool NeedToInsertNewEdge(bool useActiveLen){
 		int len=1;
 		if(useActiveLen){
@@ -293,6 +306,7 @@ private:
 		return true;
 	}
 
+	//Function chooses active node which will be used in active point
 	NormalEdge* ChooseActiveEdge(){
 		int edgeSize=activePoint->activeNode->edges.size();
 		for(int i=0;i<edgeSize;i++){
@@ -306,6 +320,7 @@ private:
 		return NULL;
 	}
 
+	//Function prints edges in tree
 	void PrintEdges(Node *n){
 		int edgesSize=n->edges.size();
 		for(int i=0;i<edgesSize;i++){
@@ -319,10 +334,10 @@ private:
 		}
 	}
 
+	//Function prints leaf nodes in tree
 	void PrintLeaves(Node *n){
 		int edgesSize=n->edges.size();
 		if(edgesSize==0){
-			cout<<n->number<<endl;
 			graphvizIspis<<"\t node"<<n->number;
 			graphvizIspis<<" [label=\"\",shape=point] \n";
 		}
@@ -336,6 +351,7 @@ private:
 		}
 	}
 
+	//Function prints internal nodes in tree
 	void PrintInternalNodes(Node *n){
 		int edgesSize=n->edges.size();
 		if(n->number!=root->number && edgesSize>0){
@@ -353,6 +369,7 @@ private:
 		}
 	}
 
+	//Function prints suffix links in tree
 	void PrintSuffixEdges(Node *n){
 		if(n->suffixEdge!=NULL){
 			graphvizIspis<<"\t node" ;
@@ -370,6 +387,7 @@ private:
 
 };
 
+//Function writes tree (which ih generated as string) in file
 void WriteToFile(string str){
 	ofstream myfile;
     myfile.open ("tree.dot");
@@ -377,6 +395,7 @@ void WriteToFile(string str){
     myfile.close();
 }
 
+//Function read input string from file
 string ReadFromFile(const char *filename){
   ifstream inFile(filename);
   if (inFile){
