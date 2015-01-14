@@ -28,28 +28,11 @@ public:
 	}
 };
 
-//The suffix link which is created between a node 'v' and node 's(v)' if the edge for 'v' is labeled xA, and
-// the edge for 's(v)' is labeled A.
-class SuffixEdge {
-public:
-    Node *startNode;
-	Node *endNode;
-
-	SuffixEdge(){}
-
-	SuffixEdge(Node *_startNode, Node *_endNode)
-	{
-		this->startNode=_startNode;
-		this->endNode=_endNode;
-	}
-
-
-};
 
 class Node {
 public:
     int number;
-	SuffixEdge *suffixEdge;
+	Node *suffixEdge;
 	vector<NormalEdge> edges;
     Node() {}
 
@@ -149,15 +132,15 @@ public:
 		AddSuffixToExistingEdges(root);
 
 		while(this->remainder>0){
+
 			if(this->activePoint->length==0){
 				this->startCharacterIndexForInsertInString=this->currentPosition;
 			}
+
 			if(NeedToInsertNewEdge(false)){
 				AddNewEdge(activePoint->activeNode, startCharacterIndexForInsertInString, startCharacterIndexForInsertInString);
-				if(previousInsertedNode!=NULL)
-				{
-					SuffixEdge *suffixEdge=new SuffixEdge(previousInsertedNode, activePoint->activeNode);
-					previousInsertedNode->suffixEdge=suffixEdge;
+				if(previousInsertedNode!=NULL){
+					previousInsertedNode->suffixEdge=activePoint->activeNode;
 				}
 				previousInsertedNode=activePoint->activeNode;
 			}
@@ -172,13 +155,11 @@ public:
 					activePoint->activeEdge=ChooseActiveEdge();
 					continue;
 				}
-				if(!NeedToInsertNewEdge(true))
-				{
+				if(!NeedToInsertNewEdge(true)){
 					activePoint->length++;
-					if(previousInsertedNode!=NULL)
-					{
-						SuffixEdge *suffixEdge=new SuffixEdge(previousInsertedNode, activePoint->activeNode);
-						previousInsertedNode->suffixEdge=suffixEdge;
+
+					if(previousInsertedNode!=NULL){
+						previousInsertedNode->suffixEdge=activePoint->activeNode;
 					}
 					previousInsertedNode=activePoint->activeNode;
 					break;
@@ -186,10 +167,8 @@ public:
 
 			    int splitIndex=activePoint->length+activePoint->activeEdge->startCharacterIndex;
 				AddNewInternalEdge(splitIndex, currentPosition);
-				if(previousInsertedNode!=NULL)
-				{
-					SuffixEdge *suffixEdge=new SuffixEdge(previousInsertedNode, activePoint->activeEdge->endNode);
-					previousInsertedNode->suffixEdge=suffixEdge;
+				if(previousInsertedNode!=NULL){
+					previousInsertedNode->suffixEdge=activePoint->activeEdge->endNode;
 				}
 				previousInsertedNode=activePoint->activeEdge->endNode;
 			}
@@ -204,7 +183,7 @@ public:
 					activePoint->activeNode=root;
 				}
 				else{
-					activePoint->activeNode=activePoint->activeNode->suffixEdge->endNode;
+					activePoint->activeNode=activePoint->activeNode->suffixEdge;
 				}
 			}
 		}
@@ -307,9 +286,71 @@ public:
 			graphvizOutput<<"\t node"<<n->number;
 			graphvizOutput<<" -> node"<<tmp->endNode->number;
 			graphvizOutput<<" [label=\"";
-			graphvizOutput<<tmp->text;
+			//graphvizOutput<<tmp->text;
 			graphvizOutput<<"\",weight=3] \n";
 			PrintEdges(tmp->endNode);
+		}
+	}
+
+	void PrintInternalNodes(Node *n)
+	{
+		int edgesSize=n->edges.size();
+		if(n->number!=root->number && edgesSize>0)
+		{
+			graphvizOutput<<"\t node";
+			graphvizOutput<<n->number;
+			graphvizOutput<<" [label=\"\",style=filled,fillcolor=lightgrey,shape=circle,width=.07,height=.07] \n";
+		}
+		if(edgesSize>0)
+		{
+			for(int i=0;i<edgesSize;i++)
+			{
+				NormalEdge *e=&n->edges.at(i);
+				if(e->endNode!=NULL)
+				{
+					PrintInternalNodes(e->endNode);
+				}
+			}
+		}
+	}
+
+	void PrintLeaves(Node *n)
+	{
+		int edgesSize=n->edges.size();
+		if(edgesSize==0)
+		{
+			cout<<n->number<<endl;
+			graphvizOutput<<"\t node"<<n->number;
+			graphvizOutput<<" [label=\"\",shape=point] \n";
+		}
+		else
+		{
+			for(int i=0;i<edgesSize;i++)
+			{
+				NormalEdge *tmp=&n->edges.at(i);
+				if(tmp->endNode!=NULL)
+				{
+					PrintLeaves(tmp->endNode);
+				}
+			}
+		}
+	}
+	void PrintSuffixEdges(Node *n)
+	{
+		if(n->suffixEdge!=NULL)
+		{
+			graphvizOutput<<"\t node" ;
+			graphvizOutput<<n->number<<" -> node";
+			graphvizOutput<<n->suffixEdge->number<<" [label=\"\",weight=1,style=dotted] \n";
+		}
+		int edgesSize=n->edges.size();
+		for(int i=0;i<edgesSize;i++)
+		{
+			NormalEdge *e=&n->edges.at(i);
+			if(e->endNode!=NULL)
+			{
+			PrintSuffixEdges(e->endNode);
+			}
 		}
 	}
 
